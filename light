@@ -1,343 +1,215 @@
 -- CONFIG
 
 local KEY_LIST_URL = "https://raw.githubusercontent.com/idkjustarandomdudeherenothingtosee/randomgithubrepodontcheckit-itdoesntmatter/refs/heads/main/justarandomfiledontlookhereitdoesntmatterthatmuch"
-
 local FILE_PATH = "Delta/Workspace/Key.txt"
-
-
-
 local MAIN_SCRIPT_URL = "https://raw.githubusercontent.com/Filipp947/light/refs/heads/main/light"
-
 local KEY_SITE_LINK = "https://your-key-link.com"
 
-
-
 local HttpService = game:GetService("HttpService")
-
 local Players = game:GetService("Players")
-
 local UserInputService = game:GetService("UserInputService")
-
 local player = Players.LocalPlayer
-
 local playerName = player.Name
 
-
-
 -- Wait before checking file
-
 task.wait(4)
 
-
-
 -- Check and validate key
-
 local function isKeyValid(key)
-
     local ok, data = pcall(function()
-
         return HttpService:JSONDecode(game:HttpGet(KEY_LIST_URL))
-
     end)
-
     if not ok or typeof(data) ~= "table" then return false, "⚠️ Failed to load key list" end
 
-
-
     for _, entry in ipairs(data) do
-
         if entry == key then
-
             if entry:find("Premium_") then
-
                 local allowedName = entry:split("_")[2]
-
                 if allowedName ~= playerName then
-
                     return false, "Not your key ⚠️"
-
                 end
-
             end
-
             return true, "Valid"
-
         end
-
     end
-
     return false, "Invalid key"
-
 end
-
-
 
 -- Try file-based key first
-
 if not isfile or not isfile(FILE_PATH) then
-
     warn("❌ No key file found. Please use the loader.")
-
     return
-
 end
-
-
 
 local ok, key = pcall(readfile, FILE_PATH)
-
 if not ok then
-
     warn("❌ Failed to read key file.")
-
     return
-
 end
-
-
 
 local valid, reason = isKeyValid(key)
-
 if not valid then
-
     warn("❌ " .. reason)
-
     return
-
 end
-
-
 
 -- Key is valid, continue with GUI
-
 local placeId = game.PlaceId
-
 local player = Players.LocalPlayer
 
-
-
 -- Wait for PlayerGui
-
 while not player:FindFirstChild("PlayerGui") do task.wait() end
 
-
-
 -- GUI Setup
-
 local screenGui = Instance.new("ScreenGui", player.PlayerGui)
-
 screenGui.Name = "UniversalScriptHub"
-
 screenGui.ResetOnSpawn = false
 
-
-
 local mainFrame = Instance.new("Frame", screenGui)
-
 mainFrame.Size = UDim2.new(0, 300, 0, 200)
-
 mainFrame.Position = UDim2.new(0.5, -150, 0.5, -100)
-
 mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-
 mainFrame.BorderSizePixel = 0
-
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-
 mainFrame.Active = true
-
 mainFrame.Draggable = true
-
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
 
-
-
 local title = Instance.new("TextLabel", mainFrame)
-
 title.Text = "Light hub"
-
 title.Font = Enum.Font.SourceSansBold
-
 title.TextSize = 22
-
 title.Size = UDim2.new(1, 0, 0, 40)
-
 title.BackgroundTransparency = 1
-
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-
-
 title.Name = "TitleLabel"
 
-
-
 local minimizeButton = Instance.new("TextButton", mainFrame)
-
 minimizeButton.Text = "-"
-
 minimizeButton.Font = Enum.Font.SourceSansBold
-
 minimizeButton.TextSize = 20
-
 minimizeButton.Size = UDim2.new(0, 30, 0, 30)
-
 minimizeButton.Position = UDim2.new(1, -70, 0, 5)
-
 minimizeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-
 minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
 Instance.new("UICorner", minimizeButton).CornerRadius = UDim.new(0, 6)
 
-
-
 local closeButton = Instance.new("TextButton", mainFrame)
-
 closeButton.Text = "X"
-
 closeButton.Font = Enum.Font.SourceSansBold
-
 closeButton.TextSize = 20
-
 closeButton.Size = UDim2.new(0, 30, 0, 30)
-
 closeButton.Position = UDim2.new(1, -35, 0, 5)
-
 closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
 Instance.new("UICorner", closeButton).CornerRadius = UDim.new(0, 6)
 
-
-
 closeButton.MouseButton1Click:Connect(function()
-
     screenGui:Destroy()
-
 end)
 
+-- Minimize to circle button with lightbulb
+local minimizedButton = Instance.new("ImageButton", screenGui)
+minimizedButton.Size = UDim2.new(0, 50, 0, 50)
+minimizedButton.Position = UDim2.new(0, 10, 0.5, -25)
+minimizedButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+minimizedButton.Visible = false
+minimizedButton.Image = "rbxassetid://9255028210"
+minimizedButton.Name = "MinimizedCircle"
+minimizedButton.ZIndex = 10
+Instance.new("UICorner", minimizedButton).CornerRadius = UDim.new(1, 0)
 
+-- Make the circle draggable
+local dragging, dragInput, dragStart, startPos
 
-local hidden = false
-
-minimizeButton.MouseButton1Click:Connect(function()
-
-    hidden = not hidden
-
-    for _, child in ipairs(mainFrame:GetChildren()) do
-
-        if child:IsA("TextButton") or child:IsA("TextLabel") then
-
-            if child.Name ~= "TitleLabel" and child ~= closeButton and child ~= minimizeButton then
-
-                child.Visible = not hidden
-
-            end
-
-        end
-
-    end
-
-end)
-
-
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-
-    if gpe then return end
-
-    if input.KeyCode == Enum.KeyCode.LeftControl then
-
-        mainFrame.Visible = not mainFrame.Visible
-
-    end
-
-end)
-
-
-
-local function createButton(name, positionY, callback)
-
-    local btn = Instance.new("TextButton", mainFrame)
-
-    btn.Size = UDim2.new(0.8, 0, 0, 40)
-
-    btn.Position = UDim2.new(0.1, 0, 0, positionY)
-
-    btn.Text = name
-
-    btn.Font = Enum.Font.SourceSansBold
-
-    btn.TextSize = 20
-
-    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-
-    btn.MouseButton1Click:Connect(callback)
-
-    return btn
-
+local function update(input)
+	local delta = input.Position - dragStart
+	minimizedButton.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
 end
 
+minimizedButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = minimizedButton.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
 
+minimizedButton.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+
+-- Minimize GUI
+minimizeButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+	minimizedButton.Visible = true
+end)
+
+-- Restore GUI
+minimizedButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = true
+	minimizedButton.Visible = false
+end)
+
+UserInputService.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.LeftControl then
+        mainFrame.Visible = not mainFrame.Visible
+    end
+end)
+
+local function createButton(name, positionY, callback)
+    local btn = Instance.new("TextButton", mainFrame)
+    btn.Size = UDim2.new(0.8, 0, 0, 40)
+    btn.Position = UDim2.new(0.1, 0, 0, positionY)
+    btn.Text = name
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 20
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    btn.MouseButton1Click:Connect(callback)
+    return btn
+end
 
 -- GAME BUTTONS
-
 if placeId == 116495829188952 then
-
     createButton("Auto bond", 50, function()
-
         getgenv().party_mode = "Normal"
-
         getgenv().party_members = 1
-
         getgenv().isPrivate = true
-
         getgenv().autobond_method = 'Lobby'
-
         getgenv().autobond = true
-
         loadstring(game:HttpGet("https://raw.githubusercontent.com/selftilted/flighttosky/refs/heads/main/DeadRails"))()
-
     end)
-
-
 
     createButton("Auto win", 100, function()
-
         loadstring(game:HttpGet("https://rawscripts.net/raw/Dead-Rails-Alpha-Auto-Win-Script-for-Dead-Rails-Instant-win-AFK-farm-KEYLESS-39867"))()
-
     end)
-
-
 
 elseif placeId == 126884695634066 then
-
     createButton("ThunderZ Hub", 70, function()
-
         loadstring(game:HttpGet("https://raw.githubusercontent.com/ThunderZ-HUB/HUB/main/Script"))()
-
     end)
-
-
 
 elseif placeId == 108170177135777 then
-
     createButton("Useful script, made by us", 70, function()
-
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Filipp947/Gui/refs/heads/main/testingfile"))()
-
     end)
 
-
-
 else
-
     screenGui:Destroy()
-
 end
