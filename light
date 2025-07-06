@@ -12,7 +12,7 @@ local player = Players.LocalPlayer
 local playerName = player.Name
 
 -- Wait before checking file
-task.wait(4)
+task.wait(1)
 
 -- Check and validate key
 local function isKeyValid(key)
