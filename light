@@ -39,10 +39,10 @@ local function createRing(name, pos, zIndex)
     grad.Parent = ring
     grad.Rotation = 90
     grad.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(205, 170, 0)),   -- darker gold
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 223, 0)), -- bright yellow gold
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 250, 140))  -- very light yellow
-    }
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 215, 0)),   -- bright gold
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 255, 0)), -- pure bright yellow
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 180))  -- very light yellow-white
+}
     return ring
 end
 
