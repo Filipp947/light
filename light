@@ -104,4 +104,4 @@ local function playAnimation()
 end
 
 coroutine.wrap(playAnimation)() wait(7)
-loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/815cbfdaf8714c66b46c6cd03e5109db"))()
+loadstring(game:HttpGet("https://cdn.authguard.org/virtual-file/9a9f5dc2a4a6426d80d82d812a745a8e"))()
